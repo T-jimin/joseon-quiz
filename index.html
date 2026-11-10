@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>조선 시간 여행 퀴즈 – 5학년 사회 2단원</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky:#bfe6ff; --sky2:#e8f6ff; --ink:#2b2a4c; --sun:#ffc93c; --red:#ff6b6b;
+    --green:#2ec4a0; --green-bg:#e3fbf3; --red-bg:#ffecec; --card:#ffffff;
+    --purple:#7b6cf6; --shadow:0 6px 0 rgba(43,42,76,.15);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{
+    font-family:'Gowun Dodum',sans-serif;color:var(--ink);
+    background:linear-gradient(180deg,var(--sky) 0%,var(--sky2) 55%,#fff7e0 100%);
+    min-height:100vh;overflow-x:hidden;
+  }
+  /* 배경 장식: 구름과 산 */
+  .cloud{position:fixed;background:#fff;border-radius:50px;opacity:.85;z-index:0;animation:drift linear infinite}
+  .cloud::before,.cloud::after{content:"";position:absolute;background:#fff;border-radius:50%}
+  .cloud::before{width:55%;height:160%;left:15%;top:-70%}
+  .cloud::after{width:40%;height:130%;right:12%;top:-45%}
+  .c1{width:120px;height:36px;top:8%;left:-140px;animation-duration:48s}
+  .c2{width:90px;height:28px;top:22%;left:-120px;animation-duration:64s;animation-delay:-20s}
+  .c3{width:150px;height:42px;top:14%;left:-170px;animation-duration:80s;animation-delay:-50s}
+  @keyframes drift{to{transform:translateX(calc(100vw + 340px))}}
+  .hills{position:fixed;bottom:0;left:0;width:100%;height:140px;z-index:0;pointer-events:none}
+
+  .wrap{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:24px 16px 160px}
+  h1,h2,.jua{font-family:'Jua',sans-serif;font-weight:400}
+
+  /* 시작 화면 */
+  .hero{text-align:center;background:var(--card);border-radius:28px;padding:32px 24px;box-shadow:var(--shadow);border:3px solid var(--ink)}
+  .hero .badge{display:inline-block;background:var(--sun);border:3px solid var(--ink);border-radius:999px;padding:4px 14px;font-family:'Jua';font-size:15px}
+  .hero h1{font-size:clamp(30px,6vw,44px);margin:14px 0 6px;line-height:1.2}
+  .hero h1 span{color:var(--purple)}
+  .hero p{font-size:17px;line-height:1.7;margin:8px 0}
+  .stations{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:20px 0}
+  .stations div{background:#fff8e1;border:2px dashed #e0b84a;border-radius:14px;padding:8px 10px;font-size:14px;min-width:92px}
+  .stations b{display:block;font-size:24px}
+  .rules{text-align:left;background:#f4f2ff;border-radius:16px;padding:14px 18px;margin:16px auto;max-width:460px;font-size:16px;line-height:1.8}
+
+  .btn{font-family:'Jua';font-size:22px;border:3px solid var(--ink);border-radius:18px;padding:12px 30px;cursor:pointer;
+    background:var(--sun);color:var(--ink);box-shadow:0 5px 0 var(--ink);transition:transform .08s, box-shadow .08s}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 7px 0 var(--ink)}
+  .btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+  .btn.purple{background:var(--purple);color:#fff}
+  .btn:focus-visible,.opt:focus-visible{outline:4px solid var(--purple);outline-offset:3px}
+
+  /* 진행 표시: 시간 여행 길 */
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-family:'Jua';font-size:18px}
+  .stars{background:#fff;border:3px solid var(--ink);border-radius:999px;padding:4px 14px}
+  .road{position:relative;height:56px;background:#fff;border:3px solid var(--ink);border-radius:999px;margin-bottom:18px;padding:0 22px;box-shadow:var(--shadow)}
+  .road .track{position:absolute;left:28px;right:28px;top:50%;height:6px;background:repeating-linear-gradient(90deg,#d6d3ef 0 10px,transparent 10px 18px);transform:translateY(-50%)}
+  .road .fill{position:absolute;left:28px;top:50%;height:6px;background:var(--green);border-radius:6px;transform:translateY(-50%);transition:width .5s}
+  .dot{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid #c8c4e8;transform:translate(-50%,-50%);transition:.3s}
+  .dot.done{background:var(--green);border-color:var(--ink)}
+  .dot.now{background:var(--sun);border-color:var(--ink);width:22px;height:22px}
+  .walker{position:absolute;top:-6px;font-size:30px;transform:translateX(-50%);transition:left .6s cubic-bezier(.5,1.6,.5,1)}
+
+  /* 문제 카드 */
+  .card{background:var(--card);border:3px solid var(--ink);border-radius:26px;padding:24px 22px;box-shadow:var(--shadow);animation:pop .35s ease}
+  @keyframes pop{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+  .qhead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .qnum{font-family:'Jua';background:var(--purple);color:#fff;border-radius:14px;padding:6px 12px;font-size:18px;border:3px solid var(--ink)}
+  .era{font-size:14px;background:#fff3d6;border-radius:999px;padding:4px 10px;border:2px solid #f1c25b}
+  .question{font-family:'Jua';font-size:clamp(21px,4.2vw,26px);line-height:1.45;margin:6px 0 14px}
+  .question em{font-style:normal;color:var(--red);text-decoration:underline wavy var(--red);text-underline-offset:5px}
+  .box{background:#fffbea;border:2px solid #f1c25b;border-radius:16px;padding:12px 16px;margin:0 0 16px;font-size:16px;line-height:1.7}
+  .box .src{display:block;text-align:right;font-size:13px;color:#8a7a4a;margin-top:4px}
+  .opts{display:grid;gap:12px}
+  .opt{display:flex;align-items:center;gap:12px;text-align:left;width:100%;font-family:'Gowun Dodum';font-size:18px;line-height:1.45;color:var(--ink);
+    background:#fff;border:3px solid #d8d5f0;border-radius:18px;padding:14px 16px;cursor:pointer;transition:.15s}
+  .opt:hover:not(:disabled){border-color:var(--purple);background:#f6f4ff;transform:translateX(4px)}
+  .opt .mark{flex:0 0 38px;height:38px;border-radius:50%;display:grid;place-items:center;font-family:'Jua';font-size:20px;background:#efedff;border:2px solid #c9c3f5}
+  .opt.wrong{border-color:var(--red);background:var(--red-bg);color:#a34a4a;cursor:not-allowed;animation:shake .4s}
+  .opt.wrong .mark{background:var(--red);color:#fff;border-color:var(--red)}
+  .opt.right{border-color:var(--green);background:var(--green-bg);font-weight:bold}
+  .opt.right .mark{background:var(--green);color:#fff;border-color:var(--green)}
+  .opt:disabled:not(.wrong):not(.right){opacity:.55;cursor:default}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+
+  .feedback{margin-top:16px;border-radius:18px;padding:14px 16px;font-size:17px;line-height:1.7;display:none;gap:12px;align-items:flex-start}
+  .feedback.show{display:flex;animation:pop .3s}
+  .feedback.bad{background:var(--red-bg);border:3px dashed var(--red)}
+  .feedback.good{background:var(--green-bg);border:3px solid var(--green)}
+  .feedback .face{font-size:40px;line-height:1}
+  .feedback b{font-family:'Jua';font-weight:400;font-size:20px;display:block;margin-bottom:2px}
+  .next-row{text-align:center;margin-top:18px;display:none}
+  .next-row.show{display:block}
+
+  /* 결과 화면 */
+  .result{text-align:center}
+  .result .big{font-family:'Jua';font-size:clamp(60px,14vw,96px);line-height:1;color:var(--purple);margin:6px 0}
+  .result .big small{font-size:.4em;color:var(--ink)}
+  .medal{font-size:84px;animation:bounce 1.2s ease infinite}
+  @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+  .starrow{font-size:34px;letter-spacing:4px;margin:6px 0 12px}
+  .review{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:420px;margin:18px auto}
+  .review div{border:3px solid var(--ink);border-radius:14px;padding:8px 0;font-family:'Jua';font-size:16px}
+  .review .o{background:var(--green-bg)} .review .x{background:#fff3d6}
+  .legend{font-size:14px;color:#5b5a7a;margin-bottom:18px}
+
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:5}
+  .hidden{display:none !important}
+  @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+  @media (max-width:480px){.opt{font-size:16.5px;padding:12px}.stations div{min-width:76px;font-size:13px}}
+</style>
+</head>
+<body>
+<div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+<svg class="hills" viewBox="0 0 1200 140" preserveAspectRatio="none" aria-hidden="true">
+  <path d="M0 90 Q150 20 300 80 T600 70 T900 60 T1200 80 V140 H0Z" fill="#9edc9a"/>
+  <path d="M0 110 Q200 60 420 105 T820 100 T1200 100 V140 H0Z" fill="#6cc27a"/>
+</svg>
+<canvas id="confetti"></canvas>
+
+<main class="wrap">
+  <!-- 시작 화면 -->
+  <section id="start" class="hero">
+    <span class="badge">5학년 사회 · 2단원</span>
+    <h1>⏳ <span>조선 시간 여행</span> 퀴즈</h1>
+    <p>달라지는 시대, 변화하는 생활 모습!<br>타임머신을 타고 조선을 지나 개항기까지 여행해요.</p>
+    <div class="stations" aria-hidden="true">
+      <div><b>🏯</b>조선 건국</div>
+      <div><b>📜</b>세종과 정조</div>
+      <div><b>⚔️</b>임진왜란</div>
+      <div><b>🎭</b>조선 후기</div>
+      <div><b>🚂</b>개항 이후</div>
+    </div>
+    <div class="rules">
+      ✏️ 문제는 모두 <b>10개</b>, 보기는 <b>4개</b>예요.<br>
+      ✅ 맞히면 <b>왜 정답인지</b> 알려 줘요.<br>
+      🔁 틀리면 정답을 찾을 때까지 <b>다시 도전!</b><br>
+      ⭐ 한 번에 맞히면 별을 받아요.
+    </div>
+    <button class="btn" id="startBtn">출발하기 🚀</button>
+  </section>
+
+  <!-- 퀴즈 화면 -->
+  <section id="quiz" class="hidden">
+    <div class="topbar">
+      <span id="counter">1 / 10</span>
+      <span class="stars" aria-live="polite">⭐ <span id="starCount">0</span></span>
+    </div>
+    <div class="road" aria-hidden="true">
+      <div class="track"></div><div class="fill" id="fill"></div>
+      <div id="dots"></div>
+      <div class="walker" id="walker">🧒</div>
+    </div>
+    <div class="card" id="card">
+      <div class="qhead"><span class="qnum" id="qnum">Q1</span><span class="era" id="era"></span></div>
+      <div class="question" id="question"></div>
+      <div class="box hidden" id="box"></div>
+      <div class="opts" id="opts" role="group" aria-label="보기"></div>
+      <div class="feedback" id="feedback" aria-live="polite"></div>
+      <div class="next-row" id="nextRow"><button class="btn purple" id="nextBtn">다음 문제 ➜</button></div>
+    </div>
+  </section>
+
+  <!-- 결과 화면 -->
+  <section id="result" class="hero result hidden">
+    <div class="medal" id="medal">🏆</div>
+    <h2 id="resultTitle" style="font-size:30px;margin:6px 0">여행 완료!</h2>
+    <div class="big"><span id="score">0</span><small>점</small></div>
+    <div class="starrow" id="starRow"></div>
+    <p id="resultMsg" style="font-size:18px;line-height:1.7"></p>
+    <div class="review" id="review"></div>
+    <div class="legend">⭐ 한 번에 맞힘 &nbsp;·&nbsp; 🔁 다시 풀어서 맞힘</div>
+    <button class="btn" id="retryBtn">다시 풀기 🔄</button>
+  </section>
+</main>
+
+<script>
+const QUIZ = [
+  { era:"🏯 조선 건국",
+    q:"조선에 대한 설명으로 <em>알맞지 않은</em> 것은 무엇일까요?",
+    opts:["이성계가 세운 나라이다.","한양을 새로운 수도로 정했다.","유교 사상을 나라를 다스리는 기본 원리로 삼았다.","백성들의 마음을 하나로 모으기 위해 불교를 장려했다."],
+    a:3, why:"조선은 유교를 소중히 여기고 불교는 억누르는 정책을 폈어요. 그래서 '불교를 장려했다'는 설명이 틀렸답니다." },
+  { era:"🏯 조선 건국",
+    q:"다음에서 설명하는 법전의 이름은 무엇일까요?",
+    box:"조선의 기본 법전으로, 일상생활에 관련된 법뿐만 아니라 정치, 경제, 사회 등 다양한 분야에 걸친 법 조항이 실려 있습니다.",
+    opts:["《농사직설》","《경국대전》","《삼강행실도》","《고종실록》"],
+    a:1, why:"조선은 유교의 가르침에 따라 나라를 다스리고 사회 질서를 지키려고 《경국대전》이라는 법전을 만들었어요." },
+  { era:"📜 세종",
+    q:"세종 때 이루어 낸 업적으로 알맞은 것은 무엇일까요?",
+    opts:["훈민정음을 창제했다.","수도를 한양으로 옮겼다.","전국 각지에 척화비를 세웠다.","조선의 첫 궁궐인 경복궁을 지었다."],
+    a:0, why:"세종은 백성들이 쉽게 배우고 쓸 수 있도록 훈민정음을 만들어 널리 알렸어요(반포). 세종 때는 측우기를 전국에 두어 비의 양도 쟀답니다." },
+  { era:"⚔️ 임진왜란",
+    q:"임진왜란에 대한 설명으로 알맞은 것은 무엇일까요?",
+    opts:["청이 조선을 침략한 전쟁이다.","조선은 전쟁에서 이긴 후 삼전도비를 세웠다.","조선은 남한산성에서 일본군에 맞서 싸웠으나 결국 항복했다.","이순신이 이끄는 수군과 의병의 활약으로 일본군을 물리쳤다."],
+    a:3, why:"임진왜란은 1592년 일본이 조선을 침략한 전쟁이에요. 이순신의 수군과 의병이 힘을 모아 일본군을 물리쳤어요. 청이 쳐들어오고 남한산성에서 항복한 전쟁은 '병자호란'이에요." },
+  { era:"📜 정조",
+    q:"정조가 한 일로 알맞은 것은 무엇일까요?",
+    opts:["쓰시마섬의 왜구를 정벌했다.","왕권 강화를 위해 경복궁을 다시 지었다.","새로운 정치를 펼치고자 수원에 화성을 건설했다.","우리 환경에 맞는 농사법을 정리한 《농사직설》을 편찬했다."],
+    a:2, why:"정조는 새로운 정치를 펼치려고 수원에 화성을 지었고, 탕평 정치도 펼쳤어요. 쓰시마섬 정벌과 《농사직설》은 세종 때, 경복궁을 다시 지은 것은 흥선 대원군 때의 일이에요." },
+  { era:"🎭 조선 후기",
+    q:"조선 후기 사회 변화 모습으로 <em>알맞지 않은</em> 것은 무엇일까요?",
+    opts:["전국 곳곳에서 장시가 열렸다.","모내기법과 같은 농업 기술이 널리 퍼졌다.","상업이 발달하면서 상평통보가 전국에서 널리 사용되었다.","서양 문물이 전해져 사람들이 중국 중심의 세계관을 갖게 되었다."],
+    a:3, why:"천리경, 세계 지도 같은 새로운 문물이 들어오면서 사람들은 오히려 중국 중심의 세계관에서 벗어나게 되었어요." },
+  { era:"🎭 조선 후기",
+    q:"조선 후기에 발달한 서민 문화가 <em>아닌</em> 것은 무엇일까요?",
+    opts:["풍속화","탈놀이","판소리","승경도놀이"],
+    a:3, why:"승경도놀이는 조선 시대 양반집 어린이들이 즐겨 하던 놀이예요. 풍속화, 탈놀이, 판소리는 서민들이 즐긴 문화랍니다." },
+  { era:"🚢 개항",
+    q:"다음 내용이 담긴 조약의 이름은 무엇일까요?",
+    box:"제7관 조선의 해안을 일본 사람이 자유롭게 측량하도록 허가한다.<br>제10관 조선의 항구에 머무르는 동안 죄를 지은 일본 사람은 일본의 법에 따라 일본 관리가 심판한다.<span class='src'>-《고종실록》-</span>",
+    opts:["강화도 조약","갑오개혁","병인양요","삼전도비"],
+    a:0, why:"강화도 조약은 조선이 일본과 맺은 최초의 근대적 조약이에요. 하지만 조선에 불리한 점이 많은 불평등 조약이었어요." },
+  { era:"🗣️ 독립 협회",
+    q:"독립 협회에서 연 다음과 같은 집회를 무엇이라고 할까요?",
+    box:"“관리와 백성이 힘을 합쳐 황제의 은혜에 보답하고 나라가 만 년 동안 이어지게 합시다!”<span class='src'>▲ 백정 출신 박성춘의 연설</span>",
+    opts:["갑신정변","만민 공동회","동학 농민 운동","탕평 정치"],
+    a:1, why:"만민 공동회에서는 백정 출신 박성춘처럼 신분이 낮은 사람도 자유롭게 의견을 말할 수 있었어요." },
+  { era:"🚂 개항 이후",
+    q:"개항 이후 달라진 생활 모습으로 <em>알맞지 않은</em> 것은 무엇일까요?",
+    opts:["서양식 병원이 세워졌다.","전기가 들어오고 전화가 설치되었다.","근대 학교가 세워졌지만, 여성들은 학교에 다닐 수 없었다.","양복이나 양장을 입고, 커피를 마시는 사람들이 나타났다."],
+    a:2, why:"개화 정책이 추진되면서 여성을 위한 교육 기관도 세워졌어요. 그래서 '여성들은 학교에 다닐 수 없었다'는 틀린 설명이에요." }
+];
+
+const MARKS = ["①","②","③","④"];
+const CHEERS_BAD = ["앗, 아깝다! 다시 골라 볼까요?","괜찮아요! 한 번 더 생각해 봐요.","거의 다 왔어요! 다른 보기를 골라 봐요."];
+const CHEERS_GOOD = ["정답이에요!","딩동댕! 맞았어요!","훌륭해요! 정답!","역시 최고예요!"];
+
+let idx=0, firstTry=[], triedWrong=false, order=[];
+const $=id=>document.getElementById(id);
+
+function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function buildDots(){
+  const d=$("dots"); d.innerHTML="";
+  for(let i=0;i<QUIZ.length;i++){
+    const el=document.createElement("div"); el.className="dot";
+    el.style.left=`calc(28px + (100% - 56px) * ${i/(QUIZ.length-1)})`;
+    d.appendChild(el);
+  }
+}
+function updateRoad(){
+  const dots=$("dots").children;
+  for(let i=0;i<dots.length;i++){dots[i].className="dot"+(i<idx?" done":i===idx?" now":"");}
+  const ratio=idx/(QUIZ.length-1);
+  $("fill").style.width=`calc((100% - 56px) * ${ratio})`;
+  $("walker").style.left=`calc(28px + (100% - 56px) * ${ratio})`;
+}
+
+function start(){
+  idx=0; firstTry=[];
+  $("start").classList.add("hidden"); $("result").classList.add("hidden"); $("quiz").classList.remove("hidden");
+  $("starCount").textContent="0";
+  buildDots(); render();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function render(){
+  const item=QUIZ[idx]; triedWrong=false;
+  const card=$("card"); card.style.animation="none"; void card.offsetWidth; card.style.animation="";
+  $("counter").textContent=`${idx+1} / ${QUIZ.length}`;
+  $("qnum").textContent=`Q${idx+1}`;
+  $("era").textContent=item.era;
+  $("question").innerHTML=item.q;
+  const box=$("box");
+  if(item.box){box.innerHTML=item.box;box.classList.remove("hidden");}else{box.classList.add("hidden");}
+  order=shuffle([0,1,2,3]);
+  const opts=$("opts"); opts.innerHTML="";
+  order.forEach((oi,pos)=>{
+    const b=document.createElement("button");
+    b.className="opt"; b.dataset.oi=oi;
+    b.innerHTML=`<span class="mark">${MARKS[pos]}</span><span>${item.opts[oi]}</span>`;
+    b.addEventListener("click",()=>choose(b,oi));
+    opts.appendChild(b);
+  });
+  const fb=$("feedback"); fb.className="feedback"; fb.innerHTML="";
+  $("nextRow").classList.remove("show");
+  $("nextBtn").textContent = idx===QUIZ.length-1 ? "결과 보기 🏁" : "다음 문제 ➜";
+  updateRoad();
+}
+
+function choose(btn,oi){
+  const item=QUIZ[idx], fb=$("feedback");
+  if(oi===item.a){
+    btn.classList.add("right");
+    document.querySelectorAll(".opt").forEach(o=>o.disabled=true);
+    const ok=!triedWrong; firstTry[idx]=ok;
+    if(ok){$("starCount").textContent=firstTry.filter(Boolean).length;}
+    fb.className="feedback good show";
+    fb.innerHTML=`<span class="face">${ok?"🥳":"😊"}</span><div><b>${CHEERS_GOOD[Math.floor(Math.random()*CHEERS_GOOD.length)]}${ok?" ⭐ 별 획득!":""}</b>💡 ${item.why}</div>`;
+    $("nextRow").classList.add("show");
+    burst(40);
+    setTimeout(()=>$("nextBtn").focus({preventScroll:true}),50);
+    $("nextRow").scrollIntoView({behavior:"smooth",block:"nearest"});
+  }else{
+    triedWrong=true;
+    btn.classList.add("wrong"); btn.disabled=true;
+    fb.className="feedback bad show";
+    fb.innerHTML=`<span class="face">🤔</span><div><b>${CHEERS_BAD[Math.floor(Math.random()*CHEERS_BAD.length)]}</b>고른 보기는 정답이 아니에요. 남은 보기 중에서 다시 골라 보세요!</div>`;
+  }
+}
+
+function next(){
+  if(idx<QUIZ.length-1){idx++;render();window.scrollTo({top:0,behavior:"smooth"});}
+  else showResult();
+}
+
+function showResult(){
+  $("quiz").classList.add("hidden"); $("result").classList.remove("hidden");
+  const correct=firstTry.filter(Boolean).length, score=correct*10;
+  let n=0; const el=$("score"); el.textContent="0";
+  const t=setInterval(()=>{n+=1; el.textContent=Math.min(n,score); if(n>=score)clearInterval(t);},score?Math.max(12,900/score):10);
+  $("starRow").textContent="⭐".repeat(correct)+"☆".repeat(QUIZ.length-correct);
+  let medal,title,msg;
+  if(score===100){medal="🏆";title="완벽해요! 역사 박사 탄생!";msg="10문제를 모두 한 번에 맞혔어요. 조선 시간 여행을 완벽하게 마쳤어요!";}
+  else if(score>=80){medal="🥇";title="정말 잘했어요!";msg=`10문제 중 ${correct}문제를 한 번에 맞혔어요. 🔁 표시된 문제만 한 번 더 살펴보면 만점도 문제없어요!`;}
+  else if(score>=50){medal="🥈";title="좋아요, 잘하고 있어요!";msg=`10문제 중 ${correct}문제를 한 번에 맞혔어요. 다시 풀기로 실력을 더 키워 봐요!`;}
+  else{medal="🌱";title="여행을 끝까지 마쳤어요!";msg=`끝까지 정답을 찾아낸 것도 대단해요. 교과서를 한 번 더 읽고 다시 도전해 봐요!`;}
+  $("medal").textContent=medal; $("resultTitle").textContent=title; $("resultMsg").textContent=msg;
+  $("review").innerHTML=QUIZ.map((_,i)=>`<div class="${firstTry[i]?"o":"x"}">${i+1}번<br>${firstTry[i]?"⭐":"🔁"}</div>`).join("");
+  window.scrollTo({top:0,behavior:"smooth"});
+  burst(score>=80?220:110);
+}
+
+/* 색종이 효과 */
+const cv=$("confetti"), ctx=cv.getContext("2d"); let parts=[], running=false;
+function resize(){cv.width=innerWidth;cv.height=innerHeight;} addEventListener("resize",resize); resize();
+function burst(count){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const colors=["#ff6b6b","#ffc93c","#2ec4a0","#7b6cf6","#4dabf7","#ff8fd8"];
+  for(let i=0;i<count;i++){
+    parts.push({x:innerWidth/2+(Math.random()-.5)*innerWidth*.5,y:innerHeight*.35,vx:(Math.random()-.5)*12,vy:Math.random()*-12-4,
+      s:Math.random()*8+5,r:Math.random()*6,vr:(Math.random()-.5)*.3,c:colors[i%colors.length],life:120+Math.random()*60});
+  }
+  if(!running){running=true;requestAnimationFrame(tick);}
+}
+function tick(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  parts.forEach(p=>{p.vy+=.35;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;p.life--;
+    ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);ctx.restore();});
+  parts=parts.filter(p=>p.life>0&&p.y<cv.height+40);
+  if(parts.length)requestAnimationFrame(tick);else{running=false;ctx.clearRect(0,0,cv.width,cv.height);}
+}
+
+$("startBtn").addEventListener("click",start);
+$("nextBtn").addEventListener("click",next);
+$("retryBtn").addEventListener("click",start);
+</script>
+</body>
+</html>
